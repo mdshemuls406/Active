@@ -32,8 +32,8 @@ async function supaUpdate(table, filter, data) {
 }
 
 // ─── Telegram Helper ────────────────────────────────────
-async function tgSend(chatId, text, replyMarkup = null) {
-    const payload = { chat_id: chatId, text, parse_mode: "Markdown" };
+async function tgSend(chatId, text, replyMarkup = null, parseMode = "HTML") {
+    const payload = { chat_id: chatId, text, parse_mode: parseMode };
     if (replyMarkup) payload.reply_markup = replyMarkup;
     try {
         await axios.post(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, payload, { timeout: 8000 });
@@ -91,23 +91,23 @@ module.exports = async (req, res) => {
             total_cost: curCost + price
         });
 
-        // ─── 4. Send Full OTP to User ───
+        // ─── 4. Send Full OTP to User (HTML format) ───
         const userMsg =
             `🌍 Country: ${flag} ${cName}\n` +
             `⚙ Service: ${service}\n` +
-            `☎ Number: \`${phone}\`\n\n` +
-            `🔐 Code: \`${code}\`\n\n` +
+            `☎ Number: <code>${phone}</code>\n\n` +
+            `🔐 Code: <code>${code}</code>\n\n` +
             `${code} is your ${service} code. Don't share it.`;
 
         await tgSend(userId, userMsg);
 
-        // ─── 5. Send Masked OTP to Group with buttons ───
+        // ─── 5. Send Masked OTP to Group with buttons (HTML format) ───
         const masked = "*".repeat(Math.max(0, phone.length - 3)) + phone.slice(-3);
         const groupMsg =
             `🌍 Country: ${flag} ${cName}\n` +
             `⚙ Service: ${service}\n` +
             `☎ Number: ${masked}\n\n` +
-            `🔐 Code: \`${code}\`\n\n` +
+            `🔐 Code: <code>${code}</code>\n\n` +
             `${code} is your ${service} code. Don't share it.`;
 
         const groupKb = {
