@@ -94,10 +94,10 @@ module.exports = async (req, res) => {
         // ─── 4. Send Full OTP to User (HTML format) ───
         const userMsg =
             `🌍 Country: ${flag} ${cName}\n` +
-            `⚙ Service: ${service}\n` +
+            `⚙ Service: <code>${service}</code>\n` +
             `☎ Number: <code>${phone}</code>\n\n` +
             `🔐 Code: <code>${code}</code>\n\n` +
-            `${code} is your ${service} code. Don't share it.`;
+            `<code>${code} is your ${service} code. Don't share it.</code>`;
 
         await tgSend(userId, userMsg);
 
@@ -105,10 +105,10 @@ module.exports = async (req, res) => {
         const masked = "*".repeat(Math.max(0, phone.length - 3)) + phone.slice(-3);
         const groupMsg =
             `🌍 Country: ${flag} ${cName}\n` +
-            `⚙ Service: ${service}\n` +
-            `☎ Number: ${masked}\n\n` +
+            `⚙ Service: <code>${service}</code>\n` +
+            `☎ Number: <code>${masked}</code>\n\n` +
             `🔐 Code: <code>${code}</code>\n\n` +
-            `${code} is your ${service} code. Don't share it.`;
+            `<code>${code} is your ${service} code. Don't share it.</code>`;
 
         const groupKb = {
             inline_keyboard: [[
