@@ -1,0 +1,9 @@
+{
+  "name": "active-number-webhook",
+  "version": "1.0.0",
+  "description": "SMSBower → Supabase → Telegram OTP delivery",
+  "main": "api/webhook.js",
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}
