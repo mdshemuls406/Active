@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Active Number Bot — Webhook</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0f;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Animated background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 20% 50%, rgba(120, 40, 200, 0.15) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 20%, rgba(0, 180, 120, 0.1) 0%, transparent 50%),
+                        radial-gradient(ellipse at 50% 80%, rgba(0, 120, 255, 0.1) 0%, transparent 50%);
+            animation: bgShift 8s ease-in-out infinite alternate;
+            z-index: 0;
+        }
+
+        @keyframes bgShift {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(2%, 2%) rotate(3deg); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 2rem;
+            max-width: 680px;
+            width: 100%;
+        }
+
+        /* Status badge */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 200, 100, 0.1);
+            border: 1px solid rgba(0, 200, 100, 0.3);
+            border-radius: 100px;
+            padding: 6px 16px;
+            font-size: 13px;
+            color: #00c864;
+            font-weight: 500;
+            margin-bottom: 2rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #00c864;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0, 200, 100, 0.4); }
+            50% { opacity: 0.8; box-shadow: 0 0 0 8px rgba(0, 200, 100, 0); }
+        }
+
+        /* Logo */
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #7c3aed, #2563eb);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 20px 60px rgba(124, 58, 237, 0.4);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff 0%, #a78bfa 50%, #60a5fa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            letter-spacing: -1px;
+        }
+
+        p.subtitle {
+            font-size: 1.05rem;
+            color: rgba(255,255,255,0.55);
+            line-height: 1.6;
+            margin-bottom: 2.5rem;
+            max-width: 480px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Stats cards */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 1.2rem 1rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(124, 58, 237, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .stat-icon { font-size: 1.5rem; margin-bottom: 6px; }
+        .stat-label { font-size: 11px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .stat-value { font-size: 1rem; font-weight: 600; color: #fff; }
+
+        /* Endpoint card */
+        .endpoint-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            text-align: left;
+            backdrop-filter: blur(10px);
+        }
+
+        .endpoint-label {
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .endpoint-url {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #a78bfa;
+            word-break: break-all;
+        }
+
+        /* CTA Button */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #7c3aed, #2563eb);
+            color: #fff;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s;
+            box-shadow: 0 8px 32px rgba(124, 58, 237, 0.35);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 48px rgba(124, 58, 237, 0.5);
+        }
+
+        /* Bottom glow line */
+        .glow-line {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #7c3aed, #2563eb, transparent);
+            opacity: 0.6;
+        }
+
+        .footer {
+            margin-top: 2.5rem;
+            font-size: 12px;
+            color: rgba(255,255,255,0.25);
+        }
+
+        @media (max-width: 480px) {
+            .stats { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="status-badge">
+            <div class="status-dot"></div>
+            Webhook Online & Operational
+        </div>
+
+        <div class="logo">⚡</div>
+
+        <h1>Active Number Bot</h1>
+        <p class="subtitle">
+            Automated OTP delivery system powered by SMSBower, Supabase & Telegram.
+            Real-time number verification made simple.
+        </p>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-icon">📡</div>
+                <div class="stat-label">Status</div>
+                <div class="stat-value">Active</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⚡</div>
+                <div class="stat-label">Provider</div>
+                <div class="stat-value">SMSBower</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🔐</div>
+                <div class="stat-label">Security</div>
+                <div class="stat-value">Encrypted</div>
+            </div>
+        </div>
+
+        <div class="endpoint-card">
+            <div class="endpoint-label">🔗 Webhook Endpoint</div>
+            <div class="endpoint-url">
+                POST &nbsp;/api/webhook
+            </div>
+        </div>
+
+        <a href="https://t.me/Active_Number_Otp" class="btn" target="_blank">
+            📢 Join OTP Group
+        </a>
+
+        <div class="footer">
+            Active Number Bot © 2025 · Built with ❤️ · All rights reserved
+        </div>
+    </div>
+
+    <div class="glow-line"></div>
+</body>
+</html>
